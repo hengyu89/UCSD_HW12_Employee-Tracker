@@ -19,6 +19,28 @@ const db = mysql.createConnection(
     console.log("Connected to the employee_db database.")
 );
 
+var updatedRole = [];
+var updatedManager = [];
+
+const updateList = () => {
+    updatedRole = [];
+    updatedManager = [];
+    db.query("SELECT title FROM role", (err, results) => {
+        for (let i = 0; i < results.length; i++) {
+            updatedRole.push(results[i].title);
+        }
+    });
+    db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee", (err, results) => {
+        for (let i = 0; i < results.length; i++) {
+            updatedManager.push(results[i].name);
+        }
+    });
+    return updatedRole, updatedManager;
+}
+
+
+
+
 const MenuChoose = () => {
     inquirer
   .prompt([
@@ -114,30 +136,19 @@ const addRole = () => {
         }
     ])
     .then(val => {
-        console.log(val);
         const sql = `INSERT INTO role (title, salary, department_id)
         VALUES ("${val.nameOfRole}", ${val.salaryOfRole}, ${updatedDepart.indexOf(val.departmentOfRole)+1});`;
         db.query(sql, (err, results) => console.log("Added",val.nameOfRole,"to the database"));
+        updateList();
         MenuChoose();
     })
 }
 
 const addEmployee = () => {
-    var updatedRole = [];
-    db.query("SELECT title FROM role", (err, results) => {
-        for (let i = 0; i < results.length; i++) {
-            updatedRole.push(results[i].title);
-            // console.log("1");
-        }
-    });
-    var updatedManager = [];
-    updatedManager.push("None");
-    db.query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee", (err, results) => {
-        for (let i = 0; i < results.length; i++) {
-            updatedManager.push(results[i].name);
-            console.log(updatedManager);
-        }
-    });
+    updateList();
+    var ManagerListWithNone = updatedManager;
+    ManagerListWithNone.unshift("None");
+    // console.log(ManagerListWithNone);
 
     inquirer
     .prompt([
@@ -165,18 +176,46 @@ const addEmployee = () => {
         }
     ])
     .then(val => {
-        console.log(val);
         var managerID = updatedManager.indexOf(val.employeeOfManager);
         if(managerID == 0) {
             managerID = null;
         }
         const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
         VALUES ("${val.first_name}", "${val.last_name}", ${updatedRole.indexOf(val.employeeOfRole)+1}, ${managerID});`;
-        console.log(`test:\nname:${val.first_name,val.last_name}.\nrole_id:${updatedRole.indexOf(val.employeeOfRole)+1},\nmanager id:${updatedManager.indexOf(val.employeeOfManager)+1}`);
+        console.log(`Test:\nfirst name:${val.first_name}\nlast name:${val.last_name}\nrole_id: ${updatedRole.indexOf(val.employeeOfRole)+1}\nmanager_id: ${managerID}`);
+        console.log(`\n${updatedRole}\n \n${val.employeeOfRole}\n \n${updatedRole.indexOf(val.employeeOfRole)+1}`)
         db.query(sql, (err, results) => console.log("Added",val.first_name,val.last_name,"to the database"));
+        updateList();
         MenuChoose();
     })
-}
+};
+
+const updateEmployeeRole = () => {
+    inquirer
+    .prompt([
+        {
+            type: "list",
+            name: "wantEmployee",
+            message: "Which employee's role do you want to update?",
+            choices: updatedManager,
+        },
+        {
+            type: "list",
+            name: "wantRole",
+            message: "Which role do you want to assign the selected employee?",
+            choices: updatedRole,
+        }
+    ])
+    .then(val => {
+        const newRoleID = updatedRole.indexOf(val.wantRole) + 1;
+        const employeeID = updatedManager.indexOf(val.wantEmployee) + 1;
+        const sql = `UPDATE employee
+                    SET role_id = ${newRoleID} WHERE id = ${employeeID}`;
+        db.query(sql, (err, results) => console.log("Updated employee's role"));
+        updateList();
+        MenuChoose();
+    })
+};
 
 const viewAllDepartments = () => {
     const sql = "SELECT id, name FROM department";
@@ -217,7 +256,7 @@ const displayTable = (table) => {
     console.log("\n");
 };
 
-
+updateList();
 MenuChoose();
 
 // app.listen(PORT, () => {
