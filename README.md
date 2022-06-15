@@ -30,4 +30,6 @@ SO THAT I can organize and plan my business
 
 ## Screenshot:
 
+* Due to the region which block the github and links all the time, please go to Youtube video representation if the screenshot is not available to demonstrate. I apologize for the inconvenient
+
 ![Screenshot of program.](./assets/img/screenshot1.png)
