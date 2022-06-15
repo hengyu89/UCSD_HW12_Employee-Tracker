@@ -28,3 +28,6 @@ SO THAT I can organize and plan my business
 
 * The menu includes: Add Employee/Role/Department, View the table of Employee/Role/Department, Update the Role of a Employee, and Quit this program.
 
+## Screenshot:
+
+![Screenshot of program.](./assets/img/screenshot1.png)
