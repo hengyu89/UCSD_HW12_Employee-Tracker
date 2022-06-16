@@ -2,7 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const Menu = require('../UCSD_HW10_Team-Profile-Generator/src/Menu');
-
+require("console.table");
 const PORT = 3001;
 const app = express();
 
@@ -219,8 +219,10 @@ const updateEmployeeRole = () => {
 
 const viewAllDepartments = () => {
     const sql = "SELECT id, name FROM department";
-    db.query(sql, (err, results) => displayTable(results))
-    MenuChoose();
+    db.query(sql, (err, results) => {
+        displayTable(results)
+        MenuChoose();
+    })
 };
 
 const viewAllRoles = () => {
@@ -230,8 +232,10 @@ const viewAllRoles = () => {
                 role.salary 
                 FROM role JOIN department 
                 ON department.id = role.department_id;`
-    db.query(sql, (err, results) => displayTable(results))
-    MenuChoose();
+    db.query(sql, (err, results) => {
+        displayTable(results)
+        MenuChoose();
+        }) 
 };
 
 const viewAllEmployee = () => {
@@ -246,8 +250,8 @@ const viewAllEmployee = () => {
             return;
         }
         displayTable(results);
+        MenuChoose();
     })
-    MenuChoose();
 }
 
 const displayTable = (table) => {
